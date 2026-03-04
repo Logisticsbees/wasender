@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">WhatsApp Bulk Sender</string>
+    <string name="accessibility_service_description">This service is needed to automate internal operations on WhatsApp.</string>
+</resources>
