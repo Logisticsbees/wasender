@@ -1,4 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">WhatsApp Bulk Sender</string>
-    <string name="accessibility_service_description">This service is needed to automate internal operations on WhatsApp.</string>
+    <string name="app_name">WaSender</string>
+    <string name="accessibility_service_label">WaSender Auto Messenger</string>
+    <string name="accessibility_service_description">WaSender uses the Accessibility Service to automatically open WhatsApp, type messages, and tap Send — enabling bulk messaging campaigns. It only interacts with WhatsApp and WhatsApp Business.</string>
 </resources>

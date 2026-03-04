@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/nav_campaigns"
+        android:icon="@drawable/ic_campaign"
+        android:title="Campaigns" />
+    <item android:id="@+id/nav_contacts"
+        android:icon="@drawable/ic_contacts"
+        android:title="Contacts" />
+    <item android:id="@+id/nav_templates"
+        android:icon="@drawable/ic_template"
+        android:title="Templates" />
+</menu>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="20dp">
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+      android:textSize="14sp" android:textColor="#555"
+      android:text="1. Open WhatsApp and go to any Group Info screen.\n2. Come back here and tap Extract.\n3. All participant numbers will be collected."/>
+  <com.google.android.material.button.MaterialButton android:id="@+id/btnOpenWa"
+      android:layout_width="match_parent" android:layout_height="wrap_content"
+      android:layout_marginTop="20dp" android:text="Open WhatsApp"
+      android:backgroundTint="@color/green_500"/>
+  <com.google.android.material.button.MaterialButton android:id="@+id/btnExtract"
+      style="@style/Widget.Material3.Button.TonalButton"
+      android:layout_width="match_parent" android:layout_height="wrap_content"
+      android:layout_marginTop="12dp" android:text="Extract Numbers from Current Screen"/>
+  <TextView android:id="@+id/tvCount" android:layout_width="match_parent"
+      android:layout_height="wrap_content" android:layout_marginTop="16dp"
+      android:textSize="15sp" android:textColor="#4CAF50" android:textStyle="bold"
+      android:text="0 numbers extracted"/>
+  <ScrollView android:layout_width="match_parent" android:layout_height="0dp"
+      android:layout_weight="1" android:layout_marginTop="8dp">
+    <TextView android:id="@+id/tvNumbers" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:textSize="13sp"
+        android:fontFamily="monospace" android:background="#F5F5F5" android:padding="12dp"/>
+  </ScrollView>
+  <com.google.android.material.button.MaterialButton android:id="@+id/btnUseCampaign"
+      android:layout_width="match_parent" android:layout_height="wrap_content"
+      android:layout_marginTop="12dp" android:text="Use in New Campaign"/>
+</LinearLayout>
