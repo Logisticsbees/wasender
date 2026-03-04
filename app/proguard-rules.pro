@@ -1,8 +1,0 @@
--keep class com.logisticsbees.wasender.data.models.** { *; }
--keepclassmembers class * implements android.os.Parcelable { static ** CREATOR; }
--keep class com.opencsv.** { *; }
--dontwarn com.opencsv.**
--keep class com.logisticsbees.wasender.service.WaSenderAccessibilityService { *; }
--keep public class * implements com.bumptech.glide.module.GlideModule
--keep class * extends com.bumptech.glide.AppGlideModule { *; }
--dontwarn com.bumptech.glide.**
