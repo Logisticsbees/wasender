@@ -5,6 +5,7 @@ import android.app.TimePickerDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -45,8 +46,8 @@ class CreateCampaignActivity : AppCompatActivity() {
     private val mediaPick = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri ?: return@registerForActivityResult
         mediaUri = uri
-        b.tvMediaFile.text    = uri.lastPathSegment ?: "File selected"
-        b.tvMediaFile.visibility  = View.VISIBLE
+        b.tvMediaFile.text = uri.lastPathSegment ?: "File selected"
+        b.tvMediaFile.visibility = View.VISIBLE
         b.btnClearMedia.visibility = View.VISIBLE
         val mime = contentResolver.getType(uri) ?: ""
         if (mime.startsWith("image")) {
@@ -55,26 +56,33 @@ class CreateCampaignActivity : AppCompatActivity() {
         }
     }
 
-    private val phonePick = registerForActivityResult(ActivityResultContracts.PickMultipleContacts()) { uris ->
-        uris.forEach { uri ->
-            val c = contentResolver.query(uri, null, null, null, null) ?: return@forEach
-            if (c.moveToFirst()) {
-                val name = c.getString(c.getColumnIndex(android.provider.ContactsContract.Contacts.DISPLAY_NAME) ?: 0) ?: ""
-                val cid  = c.getString(c.getColumnIndex(android.provider.ContactsContract.Contacts._ID) ?: 0) ?: ""
-                val pc   = contentResolver.query(
-                    android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                    "${android.provider.ContactsContract.CommonDataKinds.Phone.CONTACT_ID}=?",
-                    arrayOf(cid), null
-                )
-                pc?.use { if (it.moveToFirst()) {
-                    val num = it.getString(it.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER) ?: 0) ?: ""
+    private val phonePick = registerForActivityResult(ActivityResultContracts.PickContact()) { uri ->
+        uri ?: return@registerForActivityResult
+        
+        val c = contentResolver.query(uri, null, null, null, null) ?: return@registerForActivityResult
+        if (c.moveToFirst()) {
+            val nameIndex = c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
+            val idIndex = c.getColumnIndex(ContactsContract.Contacts._ID)
+            
+            val name = if (nameIndex != -1) c.getString(nameIndex) ?: "" else ""
+            val cid = if (idIndex != -1) c.getString(idIndex) ?: "" else ""
+            
+            val pc = contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                "${ContactsContract.CommonDataKinds.Phone.CONTACT_ID}=?",
+                arrayOf(cid), null
+            )
+            pc?.use { 
+                val phoneIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                if (it.moveToFirst() && phoneIndex != -1) {
+                    val num = it.getString(phoneIndex) ?: ""
                     CsvImporter.normalisePhone(num)?.let { n ->
                         pending.add(CampaignContact(campaignId = 0, phone = n, name = name))
                     }
-                }}
+                }
             }
-            c.close()
         }
+        c.close()
         refreshCount()
     }
 
@@ -87,31 +95,31 @@ class CreateCampaignActivity : AppCompatActivity() {
     }
 
     private fun wire() {
-        b.btnPickMedia.setOnClickListener   { mediaPick.launch("*/*") }
-        b.btnClearMedia.setOnClickListener  { clearMedia() }
+        b.btnPickMedia.setOnClickListener { mediaPick.launch("*/*") }
+        b.btnClearMedia.setOnClickListener { clearMedia() }
         b.btnPickTemplate.setOnClickListener { pickTemplate() }
-        b.btnAddManual.setOnClickListener   { addManualDialog() }
-        b.btnImportCsv.setOnClickListener   { csvPick.launch("text/*") }
-        b.btnPhoneBook.setOnClickListener   { phonePick.launch(null) }
-        b.btnAddQuick.setOnClickListener    { addQuick() }
+        b.btnAddManual.setOnClickListener { addManualDialog() }
+        b.btnImportCsv.setOnClickListener { csvPick.launch("text/*") }
+        b.btnPhoneBook.setOnClickListener { phonePick.launch(null) }
+        b.btnAddQuick.setOnClickListener { addQuick() }
         b.switchSchedule.setOnCheckedChangeListener { _, on ->
             b.layoutSchedule.visibility = if (on) View.VISIBLE else View.GONE
         }
         b.btnPickDate.setOnClickListener { pickDate() }
         b.btnPickTime.setOnClickListener { pickTime() }
         b.btnSaveDraft.setOnClickListener { save(false) }
-        b.btnSendNow.setOnClickListener   { save(true) }
+        b.btnSendNow.setOnClickListener { save(true) }
     }
 
     private fun save(sendNow: Boolean) {
-        val name    = b.etName.text?.toString()?.trim() ?: ""
+        val name = b.etName.text?.toString()?.trim() ?: ""
         val message = b.etMessage.text?.toString()?.trim() ?: ""
-        val useBiz  = b.rbBiz.isChecked
+        val useBiz = b.rbBiz.isChecked
         val msgType = if (b.rbDifferent.isChecked) "different" else "same"
-        val dMin    = b.etDelayMin.text?.toString()?.toIntOrNull() ?: 5
-        val dMax    = b.etDelayMax.text?.toString()?.toIntOrNull() ?: 10
+        val dMin = b.etDelayMin.text?.toString()?.toIntOrNull() ?: 5
+        val dMax = b.etDelayMax.text?.toString()?.toIntOrNull() ?: 10
 
-        if (name.isBlank())    { toast("Enter campaign name"); return }
+        if (name.isBlank()) { toast("Enter campaign name"); return }
         if (message.isBlank() && msgType == "same") { toast("Enter a message"); return }
         if (pending.isEmpty()) { toast("Add at least one contact"); return }
 
@@ -140,8 +148,8 @@ class CreateCampaignActivity : AppCompatActivity() {
 
     private fun addManualDialog() {
         val phone = EditText(this).apply { hint = "+91XXXXXXXXXX"; inputType = android.text.InputType.TYPE_CLASS_PHONE }
-        val name  = EditText(this).apply { hint = "Name (optional)" }
-        val ll    = LinearLayout(this).apply {
+        val name = EditText(this).apply { hint = "Name (optional)" }
+        val ll = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL; setPadding(48, 8, 48, 0)
             addView(phone); addView(name)
         }
@@ -155,7 +163,7 @@ class CreateCampaignActivity : AppCompatActivity() {
     }
 
     private fun addQuick() {
-        val raw  = b.etQuick.text?.toString()?.trim() ?: ""
+        val raw = b.etQuick.text?.toString()?.trim() ?: ""
         val norm = CsvImporter.normalisePhone(raw)
         if (norm == null) { toast("Invalid number"); return }
         pending.add(CampaignContact(campaignId = 0, phone = norm))
@@ -164,7 +172,7 @@ class CreateCampaignActivity : AppCompatActivity() {
     }
 
     private fun pickTemplate() {
-        val list = vm.templates.value
+        val list = vm.templates.value ?: emptyList()
         if (list.isEmpty()) { toast("No templates saved yet"); return }
         AlertDialog.Builder(this)
             .setTitle("Pick Template")
